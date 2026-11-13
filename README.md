@@ -68,7 +68,7 @@ A Flask-based web application that analyzes resumes, extracts candidate informat
 
 ```bash
 
-git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/Akash9917/AI-Resume-Analyzer.git
 
 cd AI-Resume-Analyzer
 
@@ -185,3 +185,4 @@ http://127.0.0.1:5000
 
 
 This project is developed for academic and educational purposes.
+
