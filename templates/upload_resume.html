@@ -1,0 +1,223 @@
+
+{% extends "base.html" %}
+
+{% block title %}Upload Resume | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<section class="upload-page">
+    <div class="container">
+
+        <!-- Page Heading -->
+        <div class="upload-heading text-center">
+            <span class="upload-eyebrow">
+                <i class="bi bi-stars"></i> RESUME ANALYSIS
+            </span>
+
+            <h1>Let's Analyze Your <span>Resume</span></h1>
+
+            <p>
+                Upload your resume and discover your strengths,
+                skills and opportunities for improvement.
+            </p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-wrapper">
+
+            <div class="upload-card">
+
+                <div class="upload-card-heading">
+                    <div>
+                        <h4>Upload Your Resume</h4>
+                        <p>Choose a PDF file to get started</p>
+                    </div>
+
+                    <div class="upload-heading-icon">
+                        <i class="bi bi-file-earmark-person"></i>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('upload_resume') }}"
+                      enctype="multipart/form-data">
+
+                    <!-- File Upload Area -->
+                    <label for="resume" class="upload-dropzone">
+
+                        <div class="upload-icon">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                        </div>
+
+                        <h5>Choose your resume</h5>
+
+                        <p>
+                            Click here to browse your files
+                        </p>
+
+                        <span class="upload-file-label">
+                            PDF FORMAT ONLY
+                        </span>
+
+                        <input
+                            type="file"
+                            id="resume"
+                            name="resume"
+                            accept=".pdf,application/pdf"
+                            required
+                        >
+
+                    </label>
+
+<div id="fileMessage" class="upload-file-message" role="alert"></div>
+
+
+                    <div class="upload-file-info">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Secure upload</span>
+
+                        <i class="bi bi-file-pdf"></i>
+                        <span>PDF only</span>
+
+                        <i class="bi bi-hdd"></i>
+                        <span>Maximum 5 MB</span>
+                    </div>
+
+                    <button type="submit" class="upload-submit-btn">
+                        <i class="bi bi-magic"></i>
+                        Analyze My Resume
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                </form>
+
+                <div class="upload-note">
+                    <i class="bi bi-info-circle"></i>
+                    Make sure your resume is readable and in PDF format.
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('home') }}" class="upload-back-link">
+                <i class="bi bi-arrow-left"></i>
+                Back to Home
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const fileInput = document.getElementById("resume");
+    const dropzone = document.querySelector(".upload-dropzone");
+    const form = fileInput.closest("form");
+    const message = document.getElementById("fileMessage");
+
+    const maxSize = 5 * 1024 * 1024;
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "upload-file-message " + type;
+    }
+
+    function validateFile(file) {
+
+        if (!file) return false;
+
+        const isPDF = file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isPDF) {
+            showMessage("Invalid file! Please select a PDF file.", "error");
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            showMessage("File exceeds 5 MB. Please select a smaller PDF.", "error");
+            return false;
+        }
+
+        if (file.size === 0) {
+            showMessage("This file is empty. Please select another PDF.", "error");
+            return false;
+        }
+
+        showMessage("PDF selected successfully!", "success");
+
+        dropzone.querySelector("h5").textContent = file.name;
+        dropzone.querySelector("p").textContent =
+            "File size: " + (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+        dropzone.classList.add("file-selected");
+
+        return true;
+    }
+
+    function resetUpload() {
+        fileInput.value = "";
+        dropzone.querySelector("h5").textContent = "Choose your resume";
+        dropzone.querySelector("p").textContent =
+            "Click here to browse your files";
+        dropzone.classList.remove("file-selected");
+    }
+
+    fileInput.addEventListener("change", function () {
+        if (!validateFile(this.files[0])) {
+            resetUpload();
+        }
+    });
+
+    // Drag and Drop
+    ["dragenter", "dragover"].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.add("drag-active");
+        });
+    });
+
+    ["dragleave", "drop"].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.remove("drag-active");
+        });
+    });
+
+    dropzone.addEventListener("drop", function (event) {
+
+        const files = event.dataTransfer.files;
+
+        if (!files.length) return;
+
+        fileInput.files = files;
+
+        if (!validateFile(files[0])) {
+            resetUpload();
+        }
+    });
+
+    // Prevent invalid form submission
+    form.addEventListener("submit", function (event) {
+
+        if (!fileInput.files.length ||
+            !validateFile(fileInput.files[0])) {
+
+            event.preventDefault();
+
+            if (!fileInput.files.length) {
+                showMessage("Please select a PDF resume first.", "error");
+            }
+
+            resetUpload();
+        }
+    });
+
+});
+
+</script>
+
+{% endblock %}

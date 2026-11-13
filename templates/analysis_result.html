@@ -1,0 +1,294 @@
+
+{% extends "base.html" %}
+
+{% block title %}Resume Analysis | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<section class="analysis-page">
+<div class="container">
+
+    <!-- Header -->
+    <div class="analysis-header">
+        <div>
+            <span class="analysis-eyebrow">
+                <i class="bi bi-stars"></i> RESUME INSIGHTS
+            </span>
+            <h1>Resume Analysis</h1>
+            <p>Your resume has been successfully analyzed.</p>
+        </div>
+
+        <div class="analysis-file">
+            <i class="bi bi-file-earmark-pdf"></i>
+            <span>{{ filename }}</span>
+        </div>
+    </div>
+
+    <!-- Candidate Profile + Score -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-7">
+            <div class="analysis-card profile-card h-100">
+                <div class="analysis-card-title">
+                    <i class="bi bi-person-circle"></i>
+                    <h4>Candidate Profile</h4>
+                </div>
+
+                <div class="profile-details">
+
+                    {% if profile.name %}
+                    <div class="profile-item">
+                        <span>Full Name</span>
+                        <strong>{{ profile.name }}</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.email %}
+                    <div class="profile-item">
+                        <span>Email Address</span>
+                        <strong>{{ profile.email }}</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.phone %}
+                    <div class="profile-item">
+                        <span>Mobile Number</span>
+                        <strong>{{ profile.phone }}</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.linkedin %}
+                    <div class="profile-item">
+                        <span>LinkedIn Profile</span>
+                        <a href="{{ profile.linkedin }}"
+                           target="_blank"
+                           rel="noopener">
+                            View Profile <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if not profile.name and not profile.email and not profile.phone and not profile.linkedin %}
+                    <p class="analysis-muted">
+                        No candidate profile information detected.
+                    </p>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="analysis-card score-card h-100">
+
+                <div class="analysis-card-title">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <h4>Resume Strength</h4>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-number">
+                        {{ resume_strength.score }}
+                        <span>/100</span>
+                    </div>
+                    <div class="score-caption">Resume Score</div>
+                </div>
+
+                <div class="score-feedback">
+                    {{ resume_strength.feedback }}
+                </div>
+
+                <div class="score-breakdown">
+                    {% for item in resume_strength.breakdown %}
+                    <div class="breakdown-item">
+                        <span>{{ item.label }}</span>
+                        <strong>
+                            {{ item.points }}/{{ item.maximum }}
+                        </strong>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Skills + Sections -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-7">
+            <div class="analysis-card h-100">
+
+                <div class="analysis-card-title">
+                    <i class="bi bi-code-slash"></i>
+                    <h4>Detected Skills</h4>
+                </div>
+
+                {% if skills %}
+                <div class="skill-list">
+                    {% for skill in skills %}
+                    <span class="analysis-skill">
+                        <i class="bi bi-check-circle-fill"></i>
+                        {{ skill }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="analysis-muted">No skills found in your resume.</p>
+                {% endif %}
+
+                <div class="analysis-count">
+                    {{ skills|length }} skills detected
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="analysis-card h-100">
+
+                <div class="analysis-card-title">
+                    <i class="bi bi-list-check"></i>
+                    <h4>Resume Section Check</h4>
+                </div>
+
+                <div class="section-list">
+                    {% for section in sections %}
+                    <div class="section-item">
+                        <span>{{ section.name }}</span>
+
+                        {% if section.found %}
+                        <span class="section-status found">
+                            <i class="bi bi-check-circle-fill"></i> Found
+                        </span>
+                        {% else %}
+                        <span class="section-status missing">
+                            <i class="bi bi-x-circle-fill"></i> Missing
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Job Matching -->
+    <div class="analysis-card job-match-card mb-4">
+
+        <div class="analysis-card-title">
+            <i class="bi bi-briefcase"></i>
+            <h4>Compare with Job Description</h4>
+        </div>
+
+        <p class="analysis-muted">
+            Paste your target job description to discover
+            matching and missing skills.
+        </p>
+
+        <form method="POST" action="{{ url_for('match_skills') }}">
+
+            <input type="hidden"
+                   name="resume_filename"
+                   value="{{ filename }}">
+
+            {% for skill in skills %}
+            <input type="hidden"
+                   name="resume_skills"
+                   value="{{ skill }}">
+            {% endfor %}
+
+            <label for="job_description" class="job-label">
+                Job Description
+            </label>
+
+            <textarea
+                class="job-description-input"
+                id="job_description"
+                name="job_description"
+                rows="7"
+                placeholder="Paste the complete job description here..."
+                required
+            ></textarea>
+
+            <button type="submit" class="analysis-primary-btn">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Check Skill Match
+                <i class="bi bi-arrow-right"></i>
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Text Preview -->
+    <div class="analysis-card mb-4">
+
+        <div class="analysis-card-title">
+            <i class="bi bi-file-text"></i>
+            <h4>Extracted Resume Text</h4>
+        </div>
+
+        <details class="text-preview-details">
+            <summary>View extracted text preview</summary>
+            <pre class="resume-preview">{{ preview }}</pre>
+        </details>
+
+    </div>
+
+    <!-- Download Report -->
+    <div class="analysis-actions">
+
+        <form method="POST"
+              action="{{ url_for('download_report') }}">
+
+            <input type="hidden" name="profile_name"
+                   value="{{ profile.name or '' }}">
+
+            <input type="hidden" name="profile_email"
+                   value="{{ profile.email or '' }}">
+
+            <input type="hidden" name="profile_phone"
+                   value="{{ profile.phone or '' }}">
+
+            <input type="hidden" name="profile_linkedin"
+                   value="{{ profile.linkedin or '' }}">
+
+            <input type="hidden" name="resume_score"
+                   value="{{ resume_strength.score }}">
+
+            <input type="hidden" name="resume_feedback"
+                   value="{{ resume_strength.feedback }}">
+
+            {% for skill in skills %}
+            <input type="hidden" name="skills" value="{{ skill }}">
+            {% endfor %}
+
+            {% for section in sections %}
+            <input type="hidden"
+                   name="sections"
+                   value="{{ section.name }}: {{ 'Found' if section.found else 'Not found' }}">
+            {% endfor %}
+
+            <button type="submit" class="analysis-secondary-btn">
+                <i class="bi bi-download"></i>
+                Download Analysis Report
+            </button>
+
+        </form>
+
+        <a href="{{ url_for('upload_resume') }}"
+           class="analysis-secondary-btn">
+            <i class="bi bi-arrow-repeat"></i>
+            Analyze Another Resume
+        </a>
+
+    </div>
+
+</div>
+</section>
+
+{% endblock %}

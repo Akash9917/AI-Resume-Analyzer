@@ -1,0 +1,443 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analysis History | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<style>
+.history-page {
+    background: #0b1120;
+    min-height: 100vh;
+    padding: 45px 0 70px;
+    color: #f8fafc;
+}
+
+.history-container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.history-heading {
+    color: #f8fafc;
+    font-weight: 750;
+}
+
+.history-subtitle {
+    color: #94a3b8;
+    margin-top: 8px;
+}
+
+.history-card {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 25px;
+}
+
+.history-input,
+.history-select {
+    background-color: #101a2d !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    border-radius: 9px !important;
+    padding: 11px 14px !important;
+}
+
+.history-input::placeholder {
+    color: #94a3b8;
+}
+
+.history-input:focus,
+.history-select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}
+
+.history-select option {
+    background: #151f33;
+    color: #f8fafc;
+}
+
+.history-table {
+    width: 100%;
+    margin-bottom: 0;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+.history-table thead th {
+    background: #101a2d;
+    color: #93c5fd;
+    font-weight: 650;
+    padding: 16px 12px;
+    border-color: #334155;
+    white-space: nowrap;
+}
+
+.history-table tbody td {
+    background: #151f33;
+    color: #e2e8f0;
+    padding: 15px 12px;
+    border-color: #263650;
+    vertical-align: middle;
+}
+
+.history-table tbody tr:hover td {
+    background: #1c2b44;
+    color: #ffffff;
+}
+
+.history-table .badge {
+    padding: 7px 10px;
+    font-weight: 600;
+}
+
+.btn-history {
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    padding: 7px 12px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.btn-history:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+.btn-export {
+    background: #059669;
+    color: #ffffff;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 10px 17px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-export:hover {
+    background: #047857;
+    color: #ffffff;
+}
+
+.btn-home {
+    display: inline-block;
+    background: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 9px;
+    padding: 11px 22px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.btn-home:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.history-empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 35px 15px;
+}
+
+#noResults td {
+    color: #f87171;
+    padding: 22px;
+}
+
+@media (max-width: 768px) {
+    .history-page {
+        padding: 30px 12px 50px;
+    }
+
+    .history-card {
+        padding: 16px;
+    }
+
+    .history-heading {
+        font-size: 26px;
+    }
+}
+</style>
+
+<section class="history-page">
+
+    <div class="container history-container">
+
+        <!-- Page Heading -->
+        <div class="text-center mb-4">
+
+            <span class="badge bg-primary mb-3">
+                Your Activity
+            </span>
+
+            <h1 class="history-heading">
+                Analysis History
+            </h1>
+
+            <p class="history-subtitle">
+                View, search and manage your previous resume analyses.
+            </p>
+
+        </div>
+
+        {% if records %}
+
+        <div class="history-card">
+
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+
+                <div class="col-md-7 mb-3 mb-md-0">
+
+                    <input
+                        type="text"
+                        id="historySearch"
+                        class="form-control history-input"
+                        placeholder="Search by resume name or candidate..."
+                    >
+
+                </div>
+
+                <div class="col-md-5">
+
+                    <select
+                        id="historyFilter"
+                        class="form-select history-select"
+                    >
+
+                        <option value="all">All Analyses</option>
+
+                        <option value="resume_analysis">
+                            Resume Analysis
+                        </option>
+
+                        <option value="skill_matching">
+                            Skill Matching
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- CSV Export -->
+            <div class="text-end mb-3">
+
+                <a
+                    href="{{ url_for('export_history') }}"
+                    class="btn-export"
+                >
+                    <i class="bi bi-download"></i>
+                    Download CSV
+                </a>
+
+            </div>
+
+            <!-- History Table -->
+            <div class="table-responsive">
+
+                <table
+                    class="table history-table align-middle"
+                    id="historyTable"
+                >
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Analysis Type</th>
+                            <th>Resume</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for record in records %}
+
+                        <tr data-type="{{ record.analysis_type }}">
+
+                            <td>
+                                {{ record.id }}
+                            </td>
+
+                            <td>
+
+                                {% if record.analysis_type == "resume_analysis" %}
+
+                                    <span class="badge bg-primary">
+                                        Resume Analysis
+                                    </span>
+
+                                {% elif record.analysis_type == "skill_matching" %}
+
+                                    <span class="badge bg-success">
+                                        Skill Matching
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ record.analysis_type }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ record.resume_filename or "N/A" }}
+                            </td>
+
+                            <td>
+
+                                {% if record.resume_score is not none %}
+
+                                    {{ record.resume_score }}%
+
+                                {% else %}
+
+                                    N/A
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ record.created_at }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{{ url_for('analysis_details', analysis_id=record.id) }}"
+                                    class="btn-history"
+                                >
+                                    View Details
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                        <!-- No Search Results -->
+                        <tr id="noResults" style="display: none;">
+
+                            <td colspan="6" class="text-center">
+                                No matching records found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="history-card history-empty">
+
+            <h4>No Analysis History Found</h4>
+
+            <p class="mt-2">
+                Upload a resume to start your first analysis.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+        <!-- Back to Home -->
+        <div class="text-center mt-4">
+
+            <a
+                href="{{ url_for('home') }}"
+                class="btn-home"
+            >
+                ← Back to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Search and Filter JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("historySearch");
+    const filterSelect = document.getElementById("historyFilter");
+    const table = document.getElementById("historyTable");
+    const noResults = document.getElementById("noResults");
+
+    if (!searchInput || !filterSelect || !table || !noResults) {
+        return;
+    }
+
+    function filterHistory() {
+
+        const searchValue = searchInput.value.toLowerCase().trim();
+        const filterValue = filterSelect.value;
+
+        const rows = table.querySelectorAll("tbody tr[data-type]");
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+
+            const rowText = row.innerText.toLowerCase();
+            const analysisType = row.getAttribute("data-type");
+
+            const matchesSearch = rowText.includes(searchValue);
+
+            const matchesFilter =
+                filterValue === "all" ||
+                analysisType === filterValue;
+
+            if (matchesSearch && matchesFilter) {
+
+                row.style.display = "";
+                visibleCount++;
+
+            } else {
+
+                row.style.display = "none";
+
+            }
+
+        });
+
+        noResults.style.display =
+            visibleCount === 0 ? "" : "none";
+
+    }
+
+    searchInput.addEventListener("input", filterHistory);
+
+    filterSelect.addEventListener("change", filterHistory);
+
+});
+</script>
+
+{% endblock %}

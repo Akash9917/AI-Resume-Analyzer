@@ -1,0 +1,698 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<style>
+.dashboard-page {
+    background: #0b1120;
+    min-height: 100vh;
+    padding: 40px 0 65px;
+    color: #f8fafc;
+}
+
+.dashboard-header {
+    background: linear-gradient(120deg, #151f33, #1e3a70);
+    border: 1px solid #334e7c;
+    color: white;
+    border-radius: 18px;
+    padding: 30px;
+    margin-bottom: 28px;
+}
+
+.dashboard-header h2 {
+    font-weight: 750;
+    margin-bottom: 10px;
+}
+
+.dashboard-header p {
+    color: #cbd5e1;
+}
+
+.dashboard-btn {
+    border-radius: 9px;
+    padding: 11px 20px;
+    font-weight: 600;
+}
+
+.stat-card {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 16px;
+    padding: 22px;
+    transition: transform 0.25s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #3b82f6;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 30px;
+    font-weight: 750;
+    margin-top: 12px;
+    margin-bottom: 5px;
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: #1e3150;
+}
+
+.stat-note {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.panel-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.section-heading {
+    color: #f8fafc;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.dashboard-panel {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.performance-card {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 15px;
+    padding: 22px;
+    height: 100%;
+}
+
+.performance-score {
+    font-size: 34px;
+    font-weight: 750;
+    margin: 12px 0 5px;
+}
+
+.performance-note {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.dashboard-table {
+    color: #e2e8f0;
+    margin-bottom: 0;
+    border-color: #334155;
+}
+
+.dashboard-table thead th {
+    background: #101a2d;
+    color: #93c5fd;
+    font-size: 13px;
+    font-weight: 650;
+    padding: 15px 12px;
+    white-space: nowrap;
+    border-color: #334155;
+}
+
+.dashboard-table tbody td {
+    background: #151f33;
+    color: #e2e8f0;
+    padding: 15px 12px;
+    vertical-align: middle;
+    border-color: #263650;
+}
+
+.dashboard-table tbody tr:hover td {
+    background: #1c2b44;
+    color: #ffffff;
+}
+
+.dashboard-table .badge {
+    padding: 7px 10px;
+    font-weight: 600;
+}
+
+.dashboard-action {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dashboard-action:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+.dashboard-outline-btn {
+    border: 1px solid #3b82f6;
+    color: #93c5fd;
+    border-radius: 8px;
+    padding: 8px 14px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dashboard-outline-btn:hover {
+    background: #2563eb;
+    color: white;
+}
+
+.chart-container {
+    max-width: 500px;
+    height: 320px;
+    margin: auto;
+    position: relative;
+}
+
+.dashboard-description {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.dashboard-footer-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+@media (max-width: 576px) {
+    .dashboard-page {
+        padding: 25px 12px 45px;
+    }
+
+    .dashboard-header {
+        padding: 22px;
+    }
+
+    .dashboard-panel {
+        padding: 16px;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+
+    .stat-value {
+        font-size: 26px;
+    }
+
+    .performance-score {
+        font-size: 29px;
+    }
+
+    .chart-container {
+        height: 280px;
+    }
+}
+</style>
+
+<div class="dashboard-page">
+
+<div class="container">
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+            <div>
+
+                <p class="mb-2">
+                    AI RESUME ANALYZER
+                </p>
+
+                <h2>Project Dashboard</h2>
+
+                <p class="mb-0">
+                    Monitor your resume analysis and job matching activity.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('upload_resume') }}"
+                class="btn btn-primary dashboard-btn"
+            >
+                + New Analysis
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Main Statistics -->
+    <div class="row g-4 mb-4">
+
+        <!-- Total Analyses -->
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="stat-card">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span class="stat-label">
+                        Total Analyses
+                    </span>
+
+                    <div class="stat-icon">📊</div>
+
+                </div>
+
+                <h3 class="stat-value text-primary">
+                    {{ total_analyses }}
+                </h3>
+
+                <span class="stat-note">
+                    All saved records
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- Resume Analyses -->
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="stat-card">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span class="stat-label">
+                        Resume Analyses
+                    </span>
+
+                    <div class="stat-icon">📄</div>
+
+                </div>
+
+                <h3 class="stat-value text-success">
+                    {{ resume_count }}
+                </h3>
+
+                <span class="stat-note">
+                    Resumes evaluated
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- Skill Matches -->
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="stat-card">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span class="stat-label">
+                        Skill Matches
+                    </span>
+
+                    <div class="stat-icon">🎯</div>
+
+                </div>
+
+                <h3 class="stat-value text-info">
+                    {{ matching_count }}
+                </h3>
+
+                <span class="stat-note">
+                    Job matching records
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- Overall Average -->
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="stat-card">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span class="stat-label">
+                        Combined Average
+                    </span>
+
+                    <div class="stat-icon">📈</div>
+
+                </div>
+
+                <h3 class="stat-value text-warning">
+                    {{ "%.1f"|format(average_score) }}%
+                </h3>
+
+                <span class="stat-note">
+                    Combined average of saved scores
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Performance Overview -->
+    <h4 class="section-heading mb-3">
+        Performance Overview
+    </h4>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+
+            <div class="performance-card">
+
+                <span class="stat-label">
+                    Average Resume Score
+                </span>
+
+                <h3 class="performance-score text-primary">
+                    {{ "%.1f"|format(resume_average) }}%
+                </h3>
+
+                <span class="performance-note">
+                    Average score across resume analyses
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="performance-card">
+
+                <span class="stat-label">
+                    Average Skill Match Score
+                </span>
+
+                <h3 class="performance-score text-success">
+                    {{ "%.1f"|format(matching_average) }}%
+                </h3>
+
+                <span class="performance-note">
+                    Average score across job matching analyses
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Analysis Chart -->
+    <div class="dashboard-panel mb-4">
+
+        <div class="mb-4">
+
+            <h4 class="panel-title">
+                Analysis Overview
+            </h4>
+
+            <p class="dashboard-description mb-0">
+                Distribution of resume and skill matching analyses
+            </p>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas
+                id="analysisChart"
+                data-resume-count="{{ resume_count }}"
+                data-matching-count="{{ matching_count }}"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- Recent Analysis History -->
+    <div class="dashboard-panel mb-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+
+            <div>
+
+                <h4 class="panel-title mb-1">
+                    Recent Analysis History
+                </h4>
+
+                <p class="dashboard-description mb-0">
+                    Your latest 5 analysis records
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('history') }}"
+                class="dashboard-outline-btn"
+            >
+                View All Records →
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table dashboard-table table-hover">
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Analysis Type</th>
+                        <th>Resume</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for record in recent_analyses %}
+
+                    <tr>
+
+                        <td>
+                            #{{ record.id }}
+                        </td>
+
+                        <td>
+
+                            {% if record.analysis_type == "resume_analysis" %}
+
+                                <span class="badge bg-primary">
+                                    Resume Analysis
+                                </span>
+
+                            {% elif record.analysis_type == "skill_matching" %}
+
+                                <span class="badge bg-success">
+                                    Skill Matching
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary">
+                                    {{ record.analysis_type }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ record.resume_filename or "N/A" }}
+                        </td>
+
+                        <td>
+
+                            {% if record.resume_score is not none %}
+
+                                {{ "%.1f"|format(record.resume_score) }}%
+
+                            {% else %}
+
+                                N/A
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ record.created_at }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{{ url_for('analysis_details', analysis_id=record.id) }}"
+                                class="dashboard-action"
+                            >
+                                View Details
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="6" class="text-center py-4">
+                            No analysis records found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="dashboard-footer-actions">
+
+        <a
+            href="{{ url_for('history') }}"
+            class="btn btn-primary dashboard-btn me-2 mb-2"
+        >
+            Analysis History
+        </a>
+
+        <a
+            href="{{ url_for('upload_resume') }}"
+            class="btn btn-success dashboard-btn mb-2"
+        >
+            Upload New Resume
+        </a>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chartCanvas = document.getElementById("analysisChart");
+
+    if (!chartCanvas) {
+        return;
+    }
+
+    if (typeof Chart === "undefined") {
+        return;
+    }
+
+    const resumeCount = Number(chartCanvas.dataset.resumeCount) || 0;
+    const matchingCount = Number(chartCanvas.dataset.matchingCount) || 0;
+
+    new Chart(chartCanvas, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: [
+                "Resume Analysis",
+                "Skill Matching"
+            ],
+
+            datasets: [{
+
+                data: [
+                    resumeCount,
+                    matchingCount
+                ],
+
+                backgroundColor: [
+                    "#3b82f6",
+                    "#10b981"
+                ],
+
+                borderColor: "#151f33",
+                borderWidth: 4,
+                hoverOffset: 8
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "70%",
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom",
+
+                    labels: {
+
+                        color: "#cbd5e1",
+                        padding: 22,
+                        usePointStyle: true
+
+                    }
+
+                },
+
+                tooltip: {
+                    enabled: true
+                }
+
+            }
+
+        }
+
+    });
+
+});
+</script>
+
+{% endblock %}

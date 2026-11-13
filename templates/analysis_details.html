@@ -1,0 +1,441 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analysis Details | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<style>
+.details-page {
+    background: #0b1120;
+    min-height: 100vh;
+    padding: 45px 0 70px;
+    color: #f8fafc;
+}
+
+.details-container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.details-heading {
+    color: #f8fafc;
+    font-weight: 750;
+}
+
+.details-subtitle {
+    color: #94a3b8;
+    margin-top: 8px;
+}
+
+.details-card {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 22px;
+}
+
+.details-card h2 {
+    color: #93c5fd;
+    font-size: 19px;
+    font-weight: 650;
+    margin-bottom: 18px;
+}
+
+.details-divider {
+    border-color: #334155;
+    opacity: 1;
+    margin: 22px 0;
+}
+
+.info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 11px 0;
+    border-bottom: 1px solid #263650;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #94a3b8;
+    min-width: 150px;
+    font-weight: 600;
+}
+
+.info-value {
+    color: #f8fafc;
+    overflow-wrap: anywhere;
+}
+
+.score-value {
+    color: #60a5fa;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.job-description {
+    background: #101a2d;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #cbd5e1;
+    padding: 18px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.7;
+}
+
+.skill-badge {
+    display: inline-block;
+    background: #123b32;
+    color: #6ee7b7;
+    border: 1px solid #16634e;
+    padding: 8px 13px;
+    border-radius: 8px;
+    margin: 4px 5px 5px 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.missing-badge {
+    display: inline-block;
+    background: #422b19;
+    color: #fbbf24;
+    border: 1px solid #80521d;
+    padding: 8px 13px;
+    border-radius: 8px;
+    margin: 4px 5px 5px 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.detail-item {
+    background: #101a2d;
+    border: 1px solid #263650;
+    border-radius: 9px;
+    padding: 13px 15px;
+    margin-bottom: 10px;
+    color: #cbd5e1;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-item strong {
+    color: #93c5fd;
+}
+
+.empty-message {
+    color: #94a3b8;
+    margin-bottom: 0;
+}
+
+.back-btn {
+    display: inline-block;
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+    padding: 11px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 25px;
+    transition: 0.2s ease;
+}
+
+.back-btn:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .details-page {
+        padding: 30px 15px 50px;
+    }
+
+    .details-card {
+        padding: 19px;
+    }
+
+    .info-label {
+        min-width: 100%;
+    }
+}
+</style>
+
+<section class="details-page">
+
+    <div class="container details-container">
+
+        <!-- Page Heading -->
+        <div class="text-center mb-4">
+
+            <span class="badge bg-primary mb-3">
+                Analysis Report
+            </span>
+
+            <h1 class="details-heading">
+                Analysis Details
+            </h1>
+
+            <p class="details-subtitle">
+                Complete information about your resume analysis.
+            </p>
+
+        </div>
+
+        <!-- Basic Information -->
+        <div class="details-card">
+
+            <h2>Basic Information</h2>
+
+            <div class="info-row">
+                <span class="info-label">Analysis ID</span>
+                <span class="info-value">{{ record.id }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Analysis Type</span>
+                <span class="info-value">
+                    {% if record.analysis_type == "resume_analysis" %}
+                        Resume Analysis
+                    {% elif record.analysis_type == "skill_matching" %}
+                        Skill Matching
+                    {% else %}
+                        {{ record.analysis_type }}
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Resume</span>
+                <span class="info-value">
+                    {{ record.resume_filename or "N/A" }}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Candidate</span>
+                <span class="info-value">
+                    {{ record.candidate_name or "N/A" }}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">
+                    {{ record.email or "N/A" }}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">
+                    {{ record.phone or "N/A" }}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Score</span>
+                <span class="score-value">
+                    {% if record.resume_score is not none %}
+                        {{ record.resume_score }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Date</span>
+                <span class="info-value">
+                    {{ record.created_at }}
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Job Description -->
+        {% if record.job_description %}
+
+        <div class="details-card">
+
+            <h2>Job Description</h2>
+
+            <div class="job-description">{{ record.job_description }}</div>
+
+        </div>
+
+        {% endif %}
+
+        <!-- Matching Skills -->
+        <div class="details-card">
+
+            <h2>Matching Skills</h2>
+
+            {% if matching_skills %}
+
+                {% for skill in matching_skills %}
+
+                    <span class="skill-badge">
+                        {% if skill is mapping %}
+                            {{ skill.get('skill', skill) }}
+                        {% else %}
+                            {{ skill }}
+                        {% endif %}
+                    </span>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No matching skills recorded.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Missing Skills -->
+        <div class="details-card">
+
+            <h2>Missing Skills</h2>
+
+            {% if missing_skills %}
+
+                {% for skill in missing_skills %}
+
+                    <span class="missing-badge">
+                        {% if skill is mapping %}
+                            {{ skill.get('skill', skill) }}
+                        {% else %}
+                            {{ skill }}
+                        {% endif %}
+                    </span>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No missing skills recorded.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Recommendations -->
+        <div class="details-card">
+
+            <h2>Recommendations</h2>
+
+            {% if recommendations %}
+
+                {% for item in recommendations %}
+
+                    <div class="detail-item">
+
+                        {% if item is mapping %}
+
+                            <strong>
+                                {{ item.get('skill', 'Recommendation') }}
+                            </strong>
+
+                            <p class="mb-0 mt-2">
+                                {{ item.get('suggestion', '') }}
+                            </p>
+
+                        {% else %}
+
+                            {{ item }}
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No recommendations recorded.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Detected Resume Sections -->
+        <div class="details-card">
+
+            <h2>Detected Resume Sections</h2>
+
+            {% if sections %}
+
+                {% for section in sections %}
+
+                    <div class="detail-item">
+
+                        {% if section is mapping %}
+
+                            <strong>
+                                {{ section.get('name', 'Resume Section') }}
+                            </strong>
+
+                            {% if 'found' in section %}
+
+                                {% if section.get('found') %}
+                                    <span class="text-success ms-2">✓ Found</span>
+                                {% else %}
+                                    <span class="text-warning ms-2">Not Found</span>
+                                {% endif %}
+
+                            {% endif %}
+
+                        {% else %}
+
+                            {{ section }}
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No resume sections recorded.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+
+            <a
+                href="{{ url_for('history') }}"
+                class="back-btn"
+            >
+                ← Back to History
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

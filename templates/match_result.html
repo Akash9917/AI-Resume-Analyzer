@@ -1,0 +1,313 @@
+
+{% extends "base.html" %}
+
+{% block title %}Skill Match Result | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<style>
+.match-result-page {
+    background: #0b1120;
+    min-height: 100vh;
+    padding: 45px 0 70px;
+    color: #f8fafc;
+}
+
+.match-container {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.match-heading {
+    color: #f8fafc;
+    font-weight: 750;
+}
+
+.match-subtitle {
+    color: #94a3b8;
+    line-height: 1.7;
+}
+
+.match-card {
+    background: #151f33;
+    border: 1px solid #263650;
+    border-radius: 16px;
+    padding: 26px;
+    margin-top: 22px;
+}
+
+.match-card h2 {
+    color: #f8fafc;
+    font-size: 19px;
+    font-weight: 650;
+    margin-bottom: 18px;
+}
+
+.match-score {
+    color: #60a5fa;
+    font-size: 54px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.match-progress {
+    width: 100%;
+    height: 10px;
+    background: #263650;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 18px;
+}
+
+.match-progress-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    border-radius: 20px;
+    transition: width 0.8s ease;
+}
+
+.skill-badge {
+    display: inline-block;
+    background: #123b32;
+    color: #6ee7b7;
+    border: 1px solid #16634e;
+    padding: 8px 13px;
+    border-radius: 8px;
+    margin: 4px 5px 5px 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.missing-badge {
+    display: inline-block;
+    background: #422b19;
+    color: #fbbf24;
+    border: 1px solid #80521d;
+    padding: 8px 13px;
+    border-radius: 8px;
+    margin: 4px 5px 5px 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.recommendation-item {
+    background: #101a2d;
+    border: 1px solid #263650;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
+}
+
+.recommendation-item strong {
+    color: #93c5fd;
+}
+
+.recommendation-item p {
+    color: #cbd5e1;
+    margin: 8px 0 0;
+    line-height: 1.6;
+}
+
+.empty-message {
+    color: #94a3b8;
+    margin-bottom: 0;
+}
+
+.match-btn {
+    display: inline-block;
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+    padding: 12px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 25px;
+    transition: 0.2s ease;
+}
+
+.match-btn:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .match-result-page {
+        padding: 30px 15px 50px;
+    }
+
+    .match-card {
+        padding: 20px;
+    }
+
+    .match-score {
+        font-size: 44px;
+    }
+}
+</style>
+
+<section class="match-result-page">
+
+    <div class="container match-container">
+
+        <!-- Page Heading -->
+        <div class="mb-4">
+
+            <span class="badge bg-primary mb-3">
+                Job Compatibility Analysis
+            </span>
+
+            <h1 class="match-heading">
+                Job Skill Match Result
+            </h1>
+
+            <p class="match-subtitle mt-2">
+                Review your matching skills, missing skills and improvement suggestions.
+            </p>
+
+        </div>
+
+        <!-- Match Percentage -->
+        <div class="match-card">
+
+            <h2>Overall Match Percentage</h2>
+
+            <div class="match-score">
+                {{ match_percentage }}%
+            </div>
+
+            <div class="match-progress">
+                <div
+                    class="match-progress-bar"
+                    data-score="{{ match_percentage }}">
+                </div>
+            </div>
+
+            <p class="match-subtitle mt-3 mb-0">
+                Comparison of your detected resume skills with job requirements.
+            </p>
+
+        </div>
+
+        <!-- Matching Skills -->
+        <div class="match-card">
+
+            <h2>✓ Matching Skills</h2>
+
+            {% if matching_skills %}
+
+                {% for skill in matching_skills %}
+
+                    <span class="skill-badge">
+                        {{ skill }}
+                    </span>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No matching skills found.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Missing Skills -->
+        <div class="match-card">
+
+            <h2>! Skills to Improve</h2>
+
+            {% if missing_skills %}
+
+                {% for skill in missing_skills %}
+
+                    <span class="missing-badge">
+                        {{ skill }}
+                    </span>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    No listed job skills are missing from your detected skills.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Recommendations -->
+        <div class="match-card">
+
+            <h2>Personalized Improvement Suggestions</h2>
+
+            {% if recommendations %}
+
+                {% for recommendation in recommendations %}
+
+                    <div class="recommendation-item">
+
+                        <strong>
+                            {{ recommendation.skill }}
+                        </strong>
+
+                        <p>
+                            {{ recommendation.suggestion }}
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty-message">
+                    Your detected skills cover the listed job requirements.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Navigation -->
+        <a
+            href="{{ url_for('upload_resume') }}"
+            class="match-btn">
+            Analyze Another Resume →
+        </a>
+
+    </div>
+
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const progressBar = document.querySelector(".match-progress-bar");
+
+    if (progressBar) {
+
+        let score = parseFloat(progressBar.dataset.score);
+
+        if (isNaN(score)) {
+            score = 0;
+        }
+
+        score = Math.min(Math.max(score, 0), 100);
+
+        progressBar.style.width = score + "%";
+    }
+
+});
+</script>
+
+{% endblock %}

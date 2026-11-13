@@ -1,0 +1,164 @@
+
+{% extends "base.html" %}
+
+{% block title %}Home | AI Resume Analyzer{% endblock %}
+
+{% block content %}
+
+<section class="home-hero">
+    <div class="container text-center">
+
+        <span class="home-badge">
+            <i class="bi bi-stars me-2"></i> AI-POWERED CAREER ASSISTANT
+        </span>
+
+        <h1>
+            Build a Stronger Resume
+            <br>
+            <span>Match Your Dream Job</span>
+        </h1>
+
+        <p class="home-hero-description">
+            Analyze your resume, discover your skill gaps,
+            and understand how well your profile matches
+            your target job description.
+        </p>
+
+        <div class="home-buttons">
+            <a href="{{ url_for('upload_resume') }}" class="btn home-primary-btn">
+                <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                Analyze My Resume
+            </a>
+
+            <a href="#how-it-works" class="btn home-outline-btn">
+                How It Works <i class="bi bi-arrow-down ms-2"></i>
+            </a>
+        </div>
+
+        <div class="home-trust-row">
+            <span><i class="bi bi-check-circle-fill"></i> PDF Resume Analysis</span>
+            <span><i class="bi bi-check-circle-fill"></i> Skill Gap Detection</span>
+            <span><i class="bi bi-check-circle-fill"></i> Job Matching</span>
+        </div>
+
+    </div>
+</section>
+
+
+<section id="features" class="container home-section">
+
+    <div class="text-center home-section-heading">
+        <span class="home-eyebrow">OUR FEATURES</span>
+        <h2>Everything You Need to Improve Your Resume</h2>
+        <p>Tools designed to help you understand your career readiness.</p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="home-feature-card h-100">
+                <div class="home-feature-icon">
+                    <i class="bi bi-file-earmark-person"></i>
+                </div>
+                <h4>Resume Analysis</h4>
+                <p>
+                    Upload your PDF resume and extract candidate
+                    details, skills and important sections.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="home-feature-card h-100">
+                <div class="home-feature-icon">
+                    <i class="bi bi-briefcase"></i>
+                </div>
+                <h4>Job Matching</h4>
+                <p>
+                    Compare your extracted resume skills with
+                    the requirements of a job description.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="home-feature-card h-100">
+                <div class="home-feature-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h4>Skill Gap Analysis</h4>
+                <p>
+                    Identify matching and missing skills and
+                    receive suggestions for improvement.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section id="how-it-works" class="container home-section workflow-section">
+
+    <div class="text-center home-section-heading">
+        <span class="home-eyebrow">SIMPLE WORKFLOW</span>
+        <h2>How It Works</h2>
+        <p>Get insights into your resume in three simple steps.</p>
+    </div>
+
+    <div class="row g-4 text-center">
+
+        <div class="col-md-4">
+            <div class="workflow-card">
+                <div class="workflow-icon">
+                    <i class="bi bi-cloud-upload"></i>
+                </div>
+                <h5>01. Upload Resume</h5>
+                <p>Upload your resume in PDF format.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="workflow-card">
+                <div class="workflow-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h5>02. Analyze Profile</h5>
+                <p>The system extracts your details and skills.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="workflow-card">
+                <div class="workflow-icon">
+                    <i class="bi bi-bar-chart-line"></i>
+                </div>
+                <h5>03. Get Results</h5>
+                <p>View your resume score, skill gaps and job match.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="container home-cta-section">
+    <div class="home-cta text-center">
+
+        <span class="home-eyebrow">TAKE THE NEXT STEP</span>
+
+        <h2>Ready to Improve Your Resume?</h2>
+
+        <p>
+            Start analyzing your resume and discover
+            opportunities to improve your job readiness.
+        </p>
+
+        <a href="{{ url_for('upload_resume') }}" class="btn home-cta-btn">
+            Get Started <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+
+    </div>
+</section>
+
+{% endblock %}
