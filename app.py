@@ -3,6 +3,7 @@ import os
 import csv
 import io
 import json
+import uuid
 
 from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.utils import secure_filename
@@ -45,7 +46,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # -----------------------------------------
 
 def allowed_file(filename):
-
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -58,7 +58,6 @@ def allowed_file(filename):
 
 @app.route("/")
 def home():
-
     return render_template("index.html")
 
 
@@ -95,10 +94,13 @@ def upload_resume():
         if file_size > max_size:
             return "File size exceeds 5 MB. Please upload a smaller PDF.", 400
 
-        filename = secure_filename(file.filename)
+        # Generate a unique filename
+        original_filename = secure_filename(file.filename)
 
-        if not filename:
+        if not original_filename:
             return "Invalid filename.", 400
+
+        filename = f"{uuid.uuid4().hex}_{original_filename}"
 
         file_path = os.path.join(
             app.config["UPLOAD_FOLDER"],
@@ -109,14 +111,28 @@ def upload_resume():
 
         # Extract PDF text
         try:
-
             extracted_text = extract_text_from_pdf(file_path)
 
         except ValueError as error:
 
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
             return str(error), 400
 
+        except Exception:
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+            raise
+
+        # Remove PDF if no readable text is found
         if not extracted_text.strip():
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
             return "No readable text found in this PDF.", 400
 
         # Extract resume information
@@ -133,55 +149,38 @@ def upload_resume():
 
         # Save analysis in MySQL
         try:
-
             history = AnalysisHistory(
-
                 analysis_type="resume_analysis",
-
                 resume_filename=filename,
-
                 candidate_name=profile.get("name", ""),
-
                 email=profile.get("email", ""),
-
                 phone=profile.get("phone", ""),
-
                 resume_score=resume_strength.get("score", 0),
-
                 matching_skills=json.dumps(skills),
-
                 missing_skills=json.dumps([]),
-
                 recommendations=json.dumps([]),
-
                 detected_sections=json.dumps(sections)
             )
 
             db.session.add(history)
-
             db.session.commit()
 
         except Exception:
-
             db.session.rollback()
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
             raise
 
         # Display analysis result
         return render_template(
-
             "analysis_result.html",
-
             filename=filename,
-
             preview=extracted_text[:1000],
-
             skills=skills,
-
             sections=sections,
-
             resume_strength=resume_strength,
-
             profile=profile
         )
 
@@ -196,42 +195,28 @@ def upload_resume():
 def download_report():
 
     profile = {
-
         "name": request.form.get("profile_name"),
-
         "email": request.form.get("profile_email"),
-
         "phone": request.form.get("profile_phone"),
-
         "linkedin": request.form.get("profile_linkedin")
     }
 
     resume_strength = {
-
         "score": request.form.get("resume_score", "0"),
-
         "feedback": request.form.get("resume_feedback", "")
     }
 
     report = generate_analysis_report(
-
         profile,
-
         resume_strength,
-
         request.form.getlist("skills"),
-
         request.form.getlist("sections")
     )
 
     return send_file(
-
         report,
-
         as_attachment=True,
-
         download_name="resume_analysis_report.pdf",
-
         mimetype="application/pdf"
     )
 
@@ -239,7 +224,6 @@ def download_report():
 # -----------------------------------------
 # JOB DESCRIPTION SKILL MATCHING
 # -----------------------------------------
-
 
 @app.route("/match-skills", methods=["POST"])
 def match_skills():
@@ -295,19 +279,17 @@ def match_skills():
     )
 
 
-
 # -----------------------------------------
 # FILE SIZE ERROR HANDLER
 # -----------------------------------------
 
 @app.errorhandler(413)
 def file_too_large(error):
-
     return "File too large! Maximum allowed size is 5 MB.", 413
 
 
 # -----------------------------------------
-# RUN APPLICATION
+# HISTORY
 # -----------------------------------------
 
 @app.route("/history")
@@ -322,6 +304,10 @@ def history():
         records=records
     )
 
+
+# -----------------------------------------
+# DASHBOARD
+# -----------------------------------------
 
 @app.route("/dashboard")
 def dashboard():
@@ -368,6 +354,10 @@ def dashboard():
     )
 
 
+# -----------------------------------------
+# ANALYSIS DETAILS
+# -----------------------------------------
+
 @app.route("/analysis-details/<int:analysis_id>")
 def analysis_details(analysis_id):
 
@@ -381,6 +371,11 @@ def analysis_details(analysis_id):
         recommendations=json.loads(record.recommendations or "[]"),
         sections=json.loads(record.detected_sections or "[]")
     )
+
+
+# -----------------------------------------
+# EXPORT HISTORY
+# -----------------------------------------
 
 @app.route("/export-history")
 def export_history():
@@ -439,6 +434,10 @@ def export_history():
 
     return response
 
-if __name__ == "__main__":
 
+# -----------------------------------------
+# RUN APPLICATION
+# -----------------------------------------
+
+if __name__ == "__main__":
     app.run(debug=True)
