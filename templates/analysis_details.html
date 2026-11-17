@@ -243,16 +243,45 @@
                 </span>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Score</span>
-                <span class="score-value">
-                    {% if record.resume_score is not none %}
-                        {{ record.resume_score }}%
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </span>
-            </div>
+            <!-- Separate Scores -->
+            {% if record.analysis_type == "skill_matching" %}
+
+                <div class="info-row">
+                    <span class="info-label">Keyword Match</span>
+                    <span class="score-value">
+                        {% if record.resume_score is not none %}
+                            {{ record.resume_score }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">AI Semantic Similarity</span>
+                    <span class="score-value">
+                        {% if record.semantic_score is not none %}
+                            {{ record.semantic_score }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+
+            {% else %}
+
+                <div class="info-row">
+                    <span class="info-label">Resume Score</span>
+                    <span class="score-value">
+                        {% if record.resume_score is not none %}
+                            {{ record.resume_score }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+
+            {% endif %}
 
             <div class="info-row">
                 <span class="info-label">Date</span>

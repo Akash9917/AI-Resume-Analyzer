@@ -303,19 +303,34 @@
                             </td>
 
                             <td>
+    {% if record.analysis_type == "skill_matching" %}
 
-                                {% if record.resume_score is not none %}
+        <div class="mb-1">
+            <small class="text-secondary">Keyword Match:</small>
+            <strong>{{ record.resume_score if record.resume_score is not none else "N/A" }}{% if record.resume_score is not none %}%{% endif %}</strong>
+        </div>
 
-                                    {{ record.resume_score }}%
+        <div>
+            <small class="text-secondary">AI Semantic:</small>
+            <strong>
+                {% if record.semantic_score is not none %}
+                    {{ record.semantic_score }}%
+                {% else %}
+                    N/A
+                {% endif %}
+            </strong>
+        </div>
 
-                                {% else %}
+    {% else %}
 
-                                    N/A
+        {% if record.resume_score is not none %}
+            {{ record.resume_score }}%
+        {% else %}
+            N/A
+        {% endif %}
 
-                                {% endif %}
-
-                            </td>
-
+    {% endif %}
+</td>
                             <td>
                                 {{ record.created_at }}
                             </td>
