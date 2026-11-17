@@ -298,8 +298,16 @@
 
                             </td>
 
-                            <td>
-                                {{ record.resume_filename or "N/A" }}
+                                                        <td>
+                                {% if record.resume_filename %}
+                                    {% if record.resume_filename|length > 33 and record.resume_filename[32] == '_' %}
+                                        {{ record.resume_filename[33:] }}
+                                    {% else %}
+                                        {{ record.resume_filename }}
+                                    {% endif %}
+                                {% else %}
+                                    N/A
+                                {% endif %}
                             </td>
 
                             <td>
