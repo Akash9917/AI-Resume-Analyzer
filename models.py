@@ -16,6 +16,7 @@ class AnalysisHistory(db.Model):
     phone = db.Column(db.String(30))
 
     resume_score = db.Column(db.Numeric(5, 2))
+    semantic_score = db.Column(db.Numeric(5, 2), nullable=True)
 
     job_description = db.Column(db.Text)
     matching_skills = db.Column(db.Text)

@@ -293,11 +293,12 @@ def match_skills():
     )
     # Save matching result in MySQL
     history = AnalysisHistory(
-        analysis_type="skill_matching",
-        resume_filename=filename,
-        resume_score=match_percentage,
-        job_description=job_description,
-        matching_skills=json.dumps(matching_skills),
+    analysis_type="skill_matching",
+    resume_filename=filename,
+    resume_score=match_percentage,
+    semantic_score=semantic_similarity,
+    job_description=job_description,
+    matching_skills=json.dumps(matching_skills),
         missing_skills=json.dumps(missing_skills),
         recommendations=json.dumps(recommendations)
     )
