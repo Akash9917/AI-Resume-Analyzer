@@ -243,42 +243,19 @@
     <div class="analysis-actions">
 
         <form method="POST"
-              action="{{ url_for('download_report') }}">
+      action="{{ url_for('download_report') }}">
 
-            <input type="hidden" name="profile_name"
-                   value="{{ profile.name or '' }}">
+    <input type="hidden"
+           name="analysis_id"
+           value="{{ analysis_id }}">
 
-            <input type="hidden" name="profile_email"
-                   value="{{ profile.email or '' }}">
+    <button type="submit" class="analysis-secondary-btn">
+        <i class="bi bi-download"></i>
+        Download Analysis Report
+    </button>
 
-            <input type="hidden" name="profile_phone"
-                   value="{{ profile.phone or '' }}">
+</form>
 
-            <input type="hidden" name="profile_linkedin"
-                   value="{{ profile.linkedin or '' }}">
-
-            <input type="hidden" name="resume_score"
-                   value="{{ resume_strength.score }}">
-
-            <input type="hidden" name="resume_feedback"
-                   value="{{ resume_strength.feedback }}">
-
-            {% for skill in skills %}
-            <input type="hidden" name="skills" value="{{ skill }}">
-            {% endfor %}
-
-            {% for section in sections %}
-            <input type="hidden"
-                   name="sections"
-                   value="{{ section.name }}: {{ 'Found' if section.found else 'Not found' }}">
-            {% endfor %}
-
-            <button type="submit" class="analysis-secondary-btn">
-                <i class="bi bi-download"></i>
-                Download Analysis Report
-            </button>
-
-        </form>
 
         <a href="{{ url_for('upload_resume') }}"
            class="analysis-secondary-btn">

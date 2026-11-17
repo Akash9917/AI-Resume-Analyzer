@@ -65,47 +65,30 @@ def home():
 # RESUME UPLOAD AND ANALYSIS
 # -----------------------------------------
 
+
 @app.route("/upload-resume", methods=["GET", "POST"])
 def upload_resume():
 
     if request.method == "POST":
 
-        if "resume" not in request.files:
+        file = request.files.get("resume")
+
+        if not file or file.filename == "":
             return "No file selected.", 400
 
-        file = request.files["resume"]
-
-        if file.filename == "":
-            return "Please select a PDF file.", 400
-
         if not allowed_file(file.filename):
-            return "Invalid file! Please upload a PDF.", 400
+            return "Only PDF files are allowed.", 400
 
-        # Validate file size (Maximum 5 MB)
-        file.stream.seek(0, os.SEEK_END)
-        file_size = file.stream.tell()
-        file.stream.seek(0)
+        filename = secure_filename(file.filename)
 
-        max_size = 5 * 1024 * 1024
-
-        if file_size == 0:
-            return "The uploaded file is empty.", 400
-
-        if file_size > max_size:
-            return "File size exceeds 5 MB. Please upload a smaller PDF.", 400
-
-        # Generate a unique filename
-        original_filename = secure_filename(file.filename)
-
-        if not original_filename:
-            return "Invalid filename.", 400
-
-        filename = f"{uuid.uuid4().hex}_{original_filename}"
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
 
         file_path = os.path.join(
             app.config["UPLOAD_FOLDER"],
-            filename
+            unique_filename
         )
+
+        filename = unique_filename
 
         file.save(file_path)
 
@@ -137,7 +120,6 @@ def upload_resume():
 
         # Extract resume information
         skills = extract_skills(extracted_text)
-
         sections = detect_resume_sections(extracted_text)
 
         resume_strength = calculate_resume_strength(
@@ -177,6 +159,7 @@ def upload_resume():
         return render_template(
             "analysis_result.html",
             filename=filename,
+            analysis_id=history.id,
             preview=extracted_text[:1000],
             skills=skills,
             sections=sections,
@@ -187,30 +170,47 @@ def upload_resume():
     return render_template("upload_resume.html")
 
 
-# -----------------------------------------
-# DOWNLOAD ANALYSIS REPORT
-# -----------------------------------------
 
 @app.route("/download-report", methods=["POST"])
 def download_report():
 
+    analysis_id = request.form.get("analysis_id", type=int)
+
+    if not analysis_id:
+        return "Invalid analysis ID.", 400
+
+    record = db.session.get(AnalysisHistory, analysis_id)
+
+    if record is None or record.analysis_type != "resume_analysis":
+        return "Analysis record not found.", 404
+
+    try:
+        skills = json.loads(record.matching_skills or "[]")
+        sections = json.loads(record.detected_sections or "[]")
+
+        if not isinstance(skills, list) or not isinstance(sections, list):
+            return "Invalid saved analysis data.", 400
+
+    except (TypeError, ValueError):
+        return "Saved analysis data is invalid.", 400
+
     profile = {
-        "name": request.form.get("profile_name"),
-        "email": request.form.get("profile_email"),
-        "phone": request.form.get("profile_phone"),
-        "linkedin": request.form.get("profile_linkedin")
+        "name": record.candidate_name or "",
+        "email": record.email or "",
+        "phone": record.phone or "",
+        "linkedin": ""
     }
 
     resume_strength = {
-        "score": request.form.get("resume_score", "0"),
-        "feedback": request.form.get("resume_feedback", "")
+        "score": record.resume_score or 0,
+        "feedback": "Report generated from your saved resume analysis."
     }
 
     report = generate_analysis_report(
         profile,
         resume_strength,
-        request.form.getlist("skills"),
-        request.form.getlist("sections")
+        skills,
+        sections
     )
 
     return send_file(
@@ -219,6 +219,7 @@ def download_report():
         download_name="resume_analysis_report.pdf",
         mimetype="application/pdf"
     )
+
 
 
 # -----------------------------------------
