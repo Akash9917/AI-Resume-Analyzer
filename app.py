@@ -226,6 +226,7 @@ def download_report():
 # JOB DESCRIPTION SKILL MATCHING
 # -----------------------------------------
 
+
 @app.route("/match-skills", methods=["POST"])
 def match_skills():
 
@@ -233,15 +234,48 @@ def match_skills():
         "job_description", ""
     ).strip()
 
-    resume_skills = request.form.getlist("resume_skills")
+    analysis_id = request.form.get("analysis_id", type=int)
 
     if not job_description:
         return "Please paste a job description.", 400
 
-    if not resume_skills:
-        return "No resume skills provided.", 400
+    if not analysis_id:
+        return "Invalid analysis ID.", 400
 
+    # Fetch the original resume analysis from the database
+    record = db.session.get(AnalysisHistory, analysis_id)
+
+    if record is None or record.analysis_type != "resume_analysis":
+        return "Resume analysis record not found.", 404
+
+    # Use the server-stored filename, not browser-submitted data
+    filename = record.resume_filename or ""
+
+    if not filename or os.path.basename(filename) != filename:
+        return "Invalid saved resume file.", 400
+
+    file_path = os.path.join(
+        app.config["UPLOAD_FOLDER"],
+        filename
+    )
+
+    if not os.path.isfile(file_path):
+        return "Original resume file not found. Please upload it again.", 404
+
+    # Extract resume text and skills on the server
+    try:
+        resume_text = extract_text_from_pdf(file_path)
+    except (ValueError, OSError):
+        return "Unable to read the saved resume PDF.", 400
+
+    if not resume_text or not resume_text.strip():
+        return "No readable text found in the resume PDF.", 400
+
+    resume_skills = extract_skills(resume_text)
     job_skills = extract_skills(job_description)
+
+    if not job_skills:
+        return "No supported skills detected in the job description.", 400
 
     match_percentage, matching_skills, missing_skills = calculate_skill_match(
         resume_skills,
@@ -252,10 +286,10 @@ def match_skills():
         missing_skills
     )
 
-    # Save job matching result in MySQL
+    # Save matching result in MySQL
     history = AnalysisHistory(
         analysis_type="skill_matching",
-        resume_filename=request.form.get("resume_filename", ""),
+        resume_filename=filename,
         resume_score=match_percentage,
         job_description=job_description,
         matching_skills=json.dumps(matching_skills),
@@ -266,7 +300,6 @@ def match_skills():
     try:
         db.session.add(history)
         db.session.commit()
-
     except Exception:
         db.session.rollback()
         raise
@@ -278,6 +311,7 @@ def match_skills():
         missing_skills=missing_skills,
         recommendations=recommendations
     )
+
 
 
 # -----------------------------------------

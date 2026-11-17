@@ -192,14 +192,8 @@
         <form method="POST" action="{{ url_for('match_skills') }}">
 
             <input type="hidden"
-                   name="resume_filename"
-                   value="{{ filename }}">
-
-            {% for skill in skills %}
-            <input type="hidden"
-                   name="resume_skills"
-                   value="{{ skill }}">
-            {% endfor %}
+       name="analysis_id"
+       value="{{ analysis_id }}">
 
             <label for="job_description" class="job-label">
                 Job Description
