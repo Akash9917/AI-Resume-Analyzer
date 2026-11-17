@@ -176,7 +176,7 @@
         <!-- Match Percentage -->
         <div class="match-card">
 
-            <h2>Overall Match Percentage</h2>
+            <h2>Keyword Skill Coverage</h2>
 
             <div class="match-score">
                 {{ match_percentage }}%
@@ -194,7 +194,30 @@
             </p>
 
         </div>
+        <!-- AI Semantic Similarity -->
+<div class="match-card">
 
+    <h2>AI Semantic Similarity</h2>
+
+    <div class="match-score">
+        {{ semantic_similarity }}%
+    </div>
+
+    <div class="match-progress">
+        <div
+            class="match-progress-bar semantic-progress-bar"
+            data-score="{{ semantic_similarity }}">
+        </div>
+    </div>
+
+    <p class="match-subtitle mt-3 mb-0">
+        Measures how closely the resume content relates to the
+        job description using a pretrained MiniLM language model.
+        This score is a similarity indicator, not a probability
+        of getting shortlisted.
+    </p>
+
+</div>
         <!-- Matching Skills -->
         <div class="match-card">
 
@@ -292,9 +315,9 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const progressBar = document.querySelector(".match-progress-bar");
+    const progressBars = document.querySelectorAll(".match-progress-bar");
 
-    if (progressBar) {
+    progressBars.forEach(function (progressBar) {
 
         let score = parseFloat(progressBar.dataset.score);
 
@@ -305,9 +328,9 @@ document.addEventListener("DOMContentLoaded", function () {
         score = Math.min(Math.max(score, 0), 100);
 
         progressBar.style.width = score + "%";
-    }
+
+    });
 
 });
 </script>
-
 {% endblock %}

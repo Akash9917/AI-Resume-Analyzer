@@ -19,6 +19,7 @@ from services.section_detector import detect_resume_sections
 from services.pdf_extractor import extract_text_from_pdf
 from services.skill_extractor import extract_skills
 from services.skill_matcher import calculate_skill_match
+from services.semantic_matcher import calculate_semantic_similarity
 from services.report_generator import generate_analysis_report
 
 
@@ -285,7 +286,11 @@ def match_skills():
     recommendations = get_skill_recommendations(
         missing_skills
     )
-
+        # Calculate semantic similarity using pretrained MiniLM model
+    semantic_similarity = calculate_semantic_similarity(
+        resume_text,
+        job_description
+    )
     # Save matching result in MySQL
     history = AnalysisHistory(
         analysis_type="skill_matching",
@@ -307,7 +312,7 @@ def match_skills():
     return render_template(
         "match_result.html",
         match_percentage=match_percentage,
-        matching_skills=matching_skills,
+        semantic_similarity=semantic_similarity,        matching_skills=matching_skills,
         missing_skills=missing_skills,
         recommendations=recommendations
     )
