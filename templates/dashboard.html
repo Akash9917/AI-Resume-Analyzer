@@ -350,7 +350,7 @@
 
         </div>
 
-        <!-- Overall Average -->
+        <!-- AI Semantic Average -->
         <div class="col-sm-6 col-lg-3">
 
             <div class="stat-card">
@@ -358,7 +358,7 @@
                 <div class="d-flex justify-content-between align-items-center">
 
                     <span class="stat-label">
-                        Combined Average
+                        AI Semantic Average
                     </span>
 
                     <div class="stat-icon">📈</div>
@@ -366,16 +366,17 @@
                 </div>
 
                 <h3 class="stat-value text-warning">
-                    {{ "%.1f"|format(average_score) }}%
+                    {{ "%.1f"|format(semantic_average) }}%
                 </h3>
 
                 <span class="stat-note">
-                    Combined average of saved scores
+                    Average semantic similarity across job matching analyses
                 </span>
 
             </div>
 
         </div>
+
 
     </div>
 

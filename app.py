@@ -350,6 +350,7 @@ def history():
 # DASHBOARD
 # -----------------------------------------
 
+
 @app.route("/dashboard")
 def dashboard():
 
@@ -363,8 +364,11 @@ def dashboard():
         analysis_type="skill_matching"
     ).count()
 
-    average_score = db.session.query(
-        db.func.avg(AnalysisHistory.resume_score)
+    semantic_average = db.session.query(
+        db.func.avg(AnalysisHistory.semantic_score)
+    ).filter(
+        AnalysisHistory.analysis_type == "skill_matching",
+        AnalysisHistory.semantic_score.isnot(None)
     ).scalar() or 0
 
     resume_average = db.session.query(
@@ -388,11 +392,12 @@ def dashboard():
         total_analyses=total_analyses,
         resume_count=resume_count,
         matching_count=matching_count,
-        average_score=average_score,
+        semantic_average=semantic_average,
         resume_average=resume_average,
         matching_average=matching_average,
         recent_analyses=recent_analyses
     )
+
 
 
 # -----------------------------------------
